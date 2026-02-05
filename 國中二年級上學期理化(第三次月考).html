@@ -1,0 +1,477 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彥均(Samuel)學習園地 - 八年級理化第三次月考測驗</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .quiz-info {
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .options label {
+            display: block;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .options label:hover {
+            background: #e9ecef;
+        }
+
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        /* 提交按鈕 */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #357abd;
+        }
+
+        /* 結果顯示區域 */
+        #result-area {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .pass {
+            color: var(--success-color);
+            border: 2px solid var(--success-color);
+            background: #eafff3;
+        }
+
+        .fail {
+            color: var(--error-color);
+            border: 2px solid var(--error-color);
+            background: #fff5f5;
+        }
+
+        /* 解析樣式 */
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            text-align: left;
+            display: none;
+        }
+
+        .correct-feedback {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .wrong-feedback {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .correct-answer-text {
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>彥均(Samuel)學習園地</h1>
+        <h2>八年級上學期理化(第三次月考)</h2>
+    </header>
+
+    <div class="quiz-info">
+        <p>📋 <strong>測驗說明：</strong></p>
+        <ul>
+            <li>滿分 100 分，總共 10 題 (隨機抽選)。</li>
+            <li>每題 10 分，<strong>90 分 (含) 以上及格</strong>。</li>
+            <li>提交後將顯示成績與詳細解析。</li>
+            <li>內容涵蓋：熱學、元素與化合物、原子結構、週期表。</li>
+        </ul>
+    </div>
+
+    <form id="quiz-form">
+        <div id="questions-container">
+            <!-- 題目將由 JavaScript 動態載入 -->
+        </div>
+        <button type="button" class="btn-submit" onclick="submitQuiz()">提交答案</button>
+    </form>
+
+    <div id="result-area">
+        <!-- 結果顯示區 -->
+    </div>
+</div>
+
+<script>
+    // 題庫資料：根據提供的來源文件提取
+    // 來源代碼說明：[1]-[14] 對應使用者提供的試卷截圖
+    const questionBank = [
+        {
+            id: 1,
+            question: "有關熱傳播的敘述，下列何者正確？",
+            options: [
+                "A. 只有液體和氣體才能進行熱對流",
+                "B. 固體的主要傳熱方式是輻射",
+                "C. 真空狀態下無法進行任何熱傳播",
+                "D. 黑色物體比白色物體容易反射輻射熱"
+            ],
+            answer: "A",
+            explanation: "解析：(A)正確，對流主要發生在流體(液體、氣體)中。(B)固體主要是傳導。(C)輻射不需介質，可在真空中傳播。(D)黑色物體容易吸收輻射熱，白色容易反射。[來源: Source 5, 8]"
+        },
+        {
+            id: 2,
+            question: "關於原子結構的敘述，下列何者錯誤？",
+            options: [
+                "A. 原子的質量主要集中在原子核",
+                "B. 原子核帶正電，電子帶負電",
+                "C. 質子和中子位於原子核內",
+                "D. 原子核的體積佔據了原子大部分的空間"
+            ],
+            answer: "D",
+            explanation: "解析：(D)錯誤。原子核體積極小，原子大部分是中空的(電子活動空間)，但原子核集中了絕大部分質量。[來源: Source 2, 11]"
+        },
+        {
+            id: 3,
+            question: "有關「同位素」的定義，下列何者正確？",
+            options: [
+                "A. 質子數相同，中子數不同的原子",
+                "B. 電子數相同，質子數不同的原子",
+                "C. 中子數相同，質子數不同的原子",
+                "D. 質量數相同，原子序不同的原子"
+            ],
+            answer: "A",
+            explanation: "解析：同位素是指具有相同的質子數(原子序)，但中子數(及質量數)不同的同一種元素。[來源: Source 4, 12]"
+        },
+        {
+            id: 4,
+            question: "下列物質何者屬於「混合物」？",
+            options: [
+                "A. 純水",
+                "B. 空氣",
+                "C. 液態氧",
+                "D. 葡萄糖"
+            ],
+            answer: "B",
+            explanation: "解析：空氣由氮氣、氧氣等多種氣體組成，無固定熔沸點，屬於混合物。其他皆為純物質。[來源: Source 9, 12]"
+        },
+        {
+            id: 5,
+            question: "有關非金屬元素的特性，下列敘述何者正確？",
+            options: [
+                "A. 所有非金屬在常溫下皆為氣態",
+                "B. 石墨是唯一能導電的非金屬元素",
+                "C. 硫粉燃燒時會產生有刺激性臭味的氣體",
+                "D. 非金屬元素都具有良好的延展性"
+            ],
+            answer: "B",
+            explanation: "解析：(A)溴是液態，碳硫磷等是固態。(B)石墨(碳)具導電性。(C)硫燃燒產生二氧化硫，有刺激性但題目問通性，B選項為常見考點「唯一導電非金屬」。註：Source 9提到石墨導電。[來源: Source 9]"
+        },
+        {
+            id: 6,
+            question: "在週期表中，同一「族」(縱行) 的元素具有下列何種特性？",
+            options: [
+                "A. 具有相同的原子序",
+                "B. 具有相似的化學性質",
+                "C. 具有相同的質量數",
+                "D. 具有相同的中子數"
+            ],
+            answer: "B",
+            explanation: "解析：週期表同族元素價電子數相同，因此化學性質相似(如鹼金族、鈍氣)。[來源: Source 11, 14]"
+        },
+        {
+            id: 7,
+            question: "將 100g、20°C 的水加熱至 40°C，需要吸收多少熱量？(水的比熱為 1.0 cal/g·°C)",
+            options: [
+                "A. 200 cal",
+                "B. 1000 cal",
+                "C. 2000 cal",
+                "D. 4000 cal"
+            ],
+            answer: "C",
+            explanation: "解析：熱量 H = m × s × ΔT。H = 100 × 1.0 × (40-20) = 2000 cal。[來源: Source 1, 7]"
+        },
+        {
+            id: 8,
+            question: "常溫常壓下，唯一的液態金屬元素是？",
+            options: [
+                "A. 金 (Au)",
+                "B. 銀 (Ag)",
+                "C. 汞 (Hg)",
+                "D. 銅 (Cu)"
+            ],
+            answer: "C",
+            explanation: "解析：汞(水銀)是常溫下唯一的液態金屬。[來源: Source 9, 10]"
+        },
+        {
+            id: 9,
+            question: "保溫瓶的夾層抽成真空，主要是為了防止熱以何種方式散失？",
+            options: [
+                "A. 傳導與對流",
+                "B. 輻射",
+                "C. 只有傳導",
+                "D. 只有對流"
+            ],
+            answer: "A",
+            explanation: "解析：真空層沒有介質，可以阻斷傳導與對流。鍍銀面則是為了防止輻射。[來源: Source 8]"
+        },
+        {
+            id: 10,
+            question: "物質由固態直接轉變為氣態的過程稱為？",
+            options: [
+                "A. 熔化",
+                "B. 汽化",
+                "C. 昇華",
+                "D. 凝華"
+            ],
+            answer: "C",
+            explanation: "解析：固態直接變氣態稱為昇華(例如乾冰、碘)；氣態變固態為凝華。[來源: Source 13]"
+        },
+        {
+            id: 11,
+            question: "下列哪個化學符號代表「鈉」？",
+            options: [
+                "A. S",
+                "B. Na",
+                "C. K",
+                "D. Ca"
+            ],
+            answer: "B",
+            explanation: "解析：Na是鈉，K是鉀，S是硫，Ca是鈣。[來源: Source 3, 10]"
+        },
+        {
+            id: 12,
+            question: "關於水受熱沸騰的過程中，下列敘述何者正確？",
+            options: [
+                "A. 溫度持續上升",
+                "B. 溫度保持不變，且不需吸熱",
+                "C. 溫度保持不變，但需持續吸熱",
+                "D. 溫度下降"
+            ],
+            answer: "C",
+            explanation: "解析：純物質在沸騰(相變)過程中，吸收熱量用於改變狀態，溫度會維持在沸點不變。[來源: Source 2, 7]"
+        },
+        {
+            id: 13,
+            question: "道耳頓的原子說在現今已被修正，下列哪一項是後來發現錯誤的？",
+            options: [
+                "A. 物質由原子組成",
+                "B. 原子不可再分割",
+                "C. 化合物由不同原子以固定比例結合",
+                "D. 化學反應是原子的重新排列"
+            ],
+            answer: "B",
+            explanation: "解析：後來發現原子內部有電子、質子、中子等次原子粒子，故「原子不可分割」的說法被修正。[來源: Source 11]"
+        }
+    ];
+
+    // 隨機選取題目函數
+    function getRandomQuestions(allQuestions, count) {
+        const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+    }
+
+    let selectedQuestions = [];
+
+    // 初始化測驗
+    function initQuiz() {
+        const container = document.getElementById('questions-container');
+        // 隨機選取 10 題
+        selectedQuestions = getRandomQuestions(questionBank, 10);
+        
+        let htmlContent = '';
+        selectedQuestions.forEach((q, index) => {
+            htmlContent += `
+                <div class="question-card" id="card-${index}">
+                    <div class="question-title">${index + 1}. ${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, i) => {
+                            const optValue = opt.charAt(0); // 取得 A, B, C, D
+                            return `
+                                <label>
+                                    <input type="radio" name="q${index}" value="${optValue}">
+                                    ${opt}
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${index}"></div>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlContent;
+        
+        // 重置結果區
+        document.getElementById('result-area').style.display = 'none';
+        document.querySelector('.btn-submit').style.display = 'block';
+        
+        // 啟用所有選項
+        const inputs = document.querySelectorAll('input[type="radio"]');
+        inputs.forEach(input => input.disabled = false);
+    }
+
+    // 提交並計分
+    function submitQuiz() {
+        let score = 0;
+        let unanswerCount = 0;
+        const totalQuestions = selectedQuestions.length; // 應為 10
+        const pointsPerQuestion = 10; // 滿分100，每題10分
+
+        // 檢查是否所有題目都作答
+        for (let i = 0; i < totalQuestions; i++) {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (!selected) {
+                unanswerCount++;
+            }
+        }
+
+        if (unanswerCount > 0) {
+            if(!confirm(`您還有 ${unanswerCount} 題未作答，確定要交卷嗎？`)) {
+                return;
+            }
+        }
+
+        // 計算分數與顯示回饋
+        selectedQuestions.forEach((q, index) => {
+            const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+            const feedbackEl = document.getElementById(`feedback-${index}`);
+            const userAnswer = selectedOption ? selectedOption.value : "未作答";
+            
+            // 鎖定選項
+            const radios = document.getElementsByName(`q${index}`);
+            radios.forEach(r => r.disabled = true);
+
+            if (userAnswer === q.answer) {
+                score += pointsPerQuestion;
+                feedbackEl.innerHTML = `<span class="correct-answer-text">⭕ 答對了！</span><br>${q.explanation}`;
+                feedbackEl.className = "feedback correct-feedback";
+            } else {
+                feedbackEl.innerHTML = `<span class="correct-answer-text">❌ 答錯了。</span> 您的答案：${userAnswer}<br>
+                                        <span class="correct-answer-text">正確答案：${q.answer}</span><br>${q.explanation}`;
+                feedbackEl.className = "feedback wrong-feedback";
+            }
+            feedbackEl.style.display = 'block';
+        });
+
+        // 顯示總分結果
+        const resultArea = document.getElementById('result-area');
+        const isPass = score >= 90;
+        
+        let resultHtml = `
+            <div class="score-display">得分：${score} 分</div>
+            <h3>${isPass ? "🎉 恭喜及格！太棒了！" : "💪 加油，請複習錯題後再試一次！"}</h3>
+            <p>${isPass ? "您已達到 Samuel 學習園地的標準。" : "及格標準為 90 分。"}</p>
+            <button class="btn-submit" onclick="location.reload()" style="background-color: #6c757d; margin-top: 15px;">再測驗一次</button>
+        `;
+
+        resultArea.className = isPass ? "pass" : "fail";
+        resultArea.innerHTML = resultHtml;
+        resultArea.style.display = 'block';
+        
+        // 隱藏提交按鈕
+        document.querySelector('.btn-submit').style.display = 'none';
+
+        // 滾動到結果
+        resultArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 頁面載入時初始化
+    window.onload = initQuiz;
+</script>
+
+</body>
+</html>

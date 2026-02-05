@@ -1,0 +1,407 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彥均(Samuel)學習園地 - 八年級英文第三次月考</title>
+    <style>
+        :root {
+            --primary: #2980b9;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --bg: #ecf0f1;
+            --card-bg: #ffffff;
+            --success: #27ae60;
+            --error: #c0392b;
+        }
+
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--secondary);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-top: 5px solid var(--primary);
+        }
+
+        h1 { margin: 0; color: var(--primary); font-size: 1.6rem; }
+        h2 { margin: 10px 0 0; font-size: 1.1rem; color: #7f8c8d; }
+
+        .rules {
+            background: #d6eaf8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        /* 讓題目中的關鍵字突顯 */
+        .highlight { color: var(--accent); font-weight: bold; }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .option-label:hover {
+            background-color: #f7f9f9;
+            border-color: var(--primary);
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            transform: scale(1.3); 
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .btn-submit:hover { background: #2471a3; }
+
+        .result-area {
+            display: none;
+            text-align: center;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .score { font-size: 3rem; font-weight: 800; margin: 10px 0; }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .correct { color: var(--success); font-weight: bold; }
+        .wrong { color: var(--error); font-weight: bold; }
+
+        @media (max-width: 600px) {
+            .container { padding: 0; }
+            body { padding: 10px; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>彥均(Samuel) 學習園地</h1>
+        <h2>八年級英文 - 第三次月考模擬 (Grade 8 Unit 5-6)</h2>
+    </header>
+
+    <div class="rules">
+        📝 <strong>測驗說明：</strong>
+        <ul>
+            <li>範圍：交通指引、花費 (Spend/Cost/Take/Pay)、未來式、購物。</li>
+            <li>題數：隨機抽出 10 題，每題 10 分。</li>
+            <li>標準：<strong>90 分 (含) 以上及格</strong>。</li>
+            <li>來源：參考學校試卷重點題型改編。</li>
+        </ul>
+    </div>
+
+    <form id="quiz-form">
+        <div id="questions-container"></div>
+        <button type="button" class="btn-submit" onclick="submitQuiz()">Submit (交卷)</button>
+    </form>
+
+    <div id="result-area" class="result-area">
+        <!-- 成績顯示區 -->
+    </div>
+</div>
+
+<script>
+    // 題庫資料：改編自提供的試卷圖片 Source 1-16
+    const questionBank = [
+        {
+            id: 1,
+            question: "It ______ me five hundred dollars to buy the ticket to the museum.",
+            options: ["A. spent", "B. took", "C. cost", "D. paid"],
+            answer: "C",
+            explanation: "解析：主詞是 It (物/虛主詞)，後面接金錢，動詞用 cost。句型：It costs + 人 + 錢 + to V。<br>(A) spend 主詞須為人 (B) take 後面通常接時間 (D) pay 主詞須為人。<br>[觀念來源: Source 2, 11]"
+        },
+        {
+            id: 2,
+            question: "We usually go to the library ______ bus.",
+            options: ["A. by", "B. on", "C. in", "D. with"],
+            answer: "A",
+            explanation: "解析：搭乘交通工具用 'by + 交通工具' (不加冠詞 a/the)。若用 on 則需說 'on a bus'。<br>[觀念來源: Source 9, 13]"
+        },
+        {
+            id: 3,
+            question: "Choose the correct sentence: (選擇正確的句子)",
+            options: [
+                "A. I spent two hours to clean the room.",
+                "B. It took me two hours to clean the room.",
+                "C. The room spent me two hours cleaning.",
+                "D. It cost me two hours to clean the room."
+            ],
+            answer: "B",
+            explanation: "解析：花費時間的句型：<br>1. It takes + 人 + 時間 + to V.<br>2. 人 + spend + 時間 + V-ing.<br>(A) 應改為 cleaning (B) 正確 (C) 物品不能當 spend 主詞 (D) cost 用於金錢。<br>[觀念來源: Source 11, 12]"
+        },
+        {
+            id: 4,
+            question: "The science museum is ______ the corner of Second Road and Park Road.",
+            options: ["A. on", "B. in", "C. between", "D. next"],
+            answer: "A",
+            explanation: "解析：在轉角處介系詞用 'on' the corner of...。<br>[觀念來源: Source 9, 10]"
+        },
+        {
+            id: 5,
+            question: "Look at the map. The bank is ______ the hospital and the school.",
+            options: ["A. next", "B. across", "C. between", "D. front"],
+            answer: "C",
+            explanation: "解析：在兩者之間用 'between' A and B。<br>[觀念來源: Source 9, 10]"
+        },
+        {
+            id: 6,
+            question: "Everything on Black Friday is ______ sale. Let's go shopping!",
+            options: ["A. in", "B. on", "C. at", "D. for"],
+            answer: "B",
+            explanation: "解析：特價中、拍賣中片語為 'on sale'。 for sale 是「待售」。<br>[觀念來源: Source 2, 11]"
+        },
+        {
+            id: 7,
+            question: "Excuse me, how do I ______ to the post office?",
+            options: ["A. arrive", "B. get", "C. reach", "D. visit"],
+            answer: "B",
+            explanation: "解析：問路常用 'How do I get to...?'。<br>[觀念來源: Source 5, 9]"
+        },
+        {
+            id: 8,
+            question: "Jerry works at a hospital. He rides a ______ to work every day.",
+            options: ["A. ship", "B. plane", "C. scooter", "D. truck"],
+            answer: "C",
+            explanation: "解析：根據句意，在台灣日常通勤且用 ride (騎) 的交通工具，'scooter' (機車) 最合理。<br>[觀念來源: Source 9]"
+        },
+        {
+            id: 9,
+            question: "Tony: Will Maggie go to the mountains tomorrow?<br>Collin: No, she ______.",
+            options: ["A. isn't", "B. won't", "C. doesn't", "D. wasn't"],
+            answer: "B",
+            explanation: "解析：問句用 Will 開頭 (未來式)，答句也要用 will 回答。否定簡寫為 won't (will not)。<br>[觀念來源: Source 11]"
+        },
+        {
+            id: 10,
+            question: "The coat is too ______ for me. I don't have enough money.",
+            options: ["A. cheap", "B. ugly", "C. expensive", "D. yummy"],
+            answer: "C",
+            explanation: "解析：關鍵字 'don't have enough money' (錢不夠)，表示外套太貴了 (expensive)。<br>[觀念來源: Source 11, 15]"
+        },
+        {
+            id: 11,
+            question: "Using smartphones too much is bad for your eyes. You should track your ______ time.",
+            options: ["A. screen", "B. scream", "C. school", "D. street"],
+            answer: "A",
+            explanation: "解析：文意測驗。'screen time' 指螢幕使用時間。<br>[觀念來源: Source 3]"
+        },
+        {
+            id: 12,
+            question: "Go straight for two blocks and turn left. It's ______ your right.",
+            options: ["A. in", "B. at", "C. on", "D. by"],
+            answer: "C",
+            explanation: "解析：在你的右手邊介系詞用 'on' your right。<br>[觀念來源: Source 5, 9]"
+        },
+        {
+            id: 13,
+            question: "Mom ______ dinner this evening. Let's eat out!",
+            options: ["A. isn't going to cook", "B. doesn't cook", "C. won't cooking", "D. not cook"],
+            answer: "A",
+            explanation: "解析：今晚還沒到，需用未來式。Let's eat out 暗示這是一個計畫，用 'is not going to cook' 表示不打算煮。<br>[觀念來源: Source 11]"
+        },
+        {
+            id: 14,
+            question: "How much did you ______ for the new sweater?",
+            options: ["A. cost", "B. spend", "C. pay", "D. take"],
+            answer: "C",
+            explanation: "解析：主詞是 you (人)，後面接 for + 物品，動詞用 pay (付錢)。句型：人 + pay + 錢 + for + 物。<br>[觀念來源: Source 2, 14]"
+        },
+        {
+            id: 15,
+            question: "Lisa's Store is having a sale. The new clothes are at low ______.",
+            options: ["A. costs", "B. prices", "C. money", "D. expenses"],
+            answer: "B",
+            explanation: "解析：at low prices (以低價)。<br>[觀念來源: Source 12]"
+        }
+    ];
+
+    // 洗牌函數：打亂題目順序
+    function shuffleArray(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    let currentQuestions = [];
+
+    // 初始化測驗
+    function initQuiz() {
+        const container = document.getElementById('questions-container');
+        container.innerHTML = "";
+        
+        // 隨機選出 10 題
+        const shuffledQuestions = shuffleArray([...questionBank]);
+        currentQuestions = shuffledQuestions.slice(0, 10);
+
+        currentQuestions.forEach((q, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            
+            // 處理題目文字中的底線 (將 ______ 標記起來若需要，這裡直接顯示)
+            
+            card.innerHTML = `
+                <div class="question-text">
+                    <span style="color:var(--primary)">Q${index + 1}.</span> ${q.question}
+                </div>
+                <div class="options">
+                    ${q.options.map(opt => {
+                        const val = opt.charAt(0); // A, B, C, D
+                        return `
+                        <label class="option-label">
+                            <input type="radio" name="q${index}" value="${val}">
+                            <span>${opt}</span>
+                        </label>`;
+                    }).join('')}
+                </div>
+                <div id="feedback-${index}" class="feedback"></div>
+            `;
+            container.appendChild(card);
+        });
+        
+        // 重置狀態
+        document.getElementById('result-area').style.display = 'none';
+        document.querySelector('.btn-submit').style.display = 'block';
+    }
+
+    // 提交並計分
+    function submitQuiz() {
+        let score = 0;
+        let correctCount = 0;
+        let unanswered = 0;
+        
+        // 檢查未作答
+        currentQuestions.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            if (!selected) unanswered++;
+        });
+
+        if (unanswered > 0) {
+            if (!confirm(`還有 ${unanswered} 題沒寫完，確定要交卷嗎？`)) return;
+        }
+
+        // 開始計分
+        currentQuestions.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const feedbackEl = document.getElementById(`feedback-${index}`);
+            const userAnswer = selected ? selected.value : "";
+            
+            // 鎖定選項
+            const inputs = document.querySelectorAll(`input[name="q${index}"]`);
+            inputs.forEach(input => input.disabled = true);
+
+            if (userAnswer === q.answer) {
+                score += 10;
+                correctCount++;
+                feedbackEl.innerHTML = `<span class="correct">✅ Correct! (答對了)</span><br>${q.explanation}`;
+                feedbackEl.style.borderLeft = "5px solid var(--success)";
+            } else {
+                feedbackEl.innerHTML = `<span class="wrong">❌ Wrong. (答錯了)</span><br>
+                                        你的答案：${userAnswer || "未作答"}<br>
+                                        <span class="correct">正確答案：${q.answer}</span><br>${q.explanation}`;
+                feedbackEl.style.borderLeft = "5px solid var(--error)";
+            }
+            feedbackEl.style.display = "block";
+        });
+
+        // 顯示總分
+        const resultArea = document.getElementById('result-area');
+        const isPass = score >= 90;
+        
+        resultArea.innerHTML = `
+            <div class="score" style="color: ${isPass ? 'var(--success)' : 'var(--error)'}">
+                ${score} 分
+            </div>
+            <h3>${isPass ? "🎉 Great Job! 通過標準！" : "💪 Keep Trying! 未達 90 分，再試一次！"}</h3>
+            <p>答對題數：${correctCount} / 10</p>
+            <button class="btn-submit" onclick="location.reload()" style="background-color:#95a5a6; margin-top:15px;">再測驗一次 (Retry)</button>
+        `;
+        
+        resultArea.style.display = "block";
+        document.querySelector('.btn-submit').style.display = 'none';
+        
+        // 捲動到結果區
+        resultArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 啟動程式
+    window.onload = initQuiz;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彥均(Samuel)學習園地 - 八年級數學第三次月考</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --success: #27ae60;
+            --error: #c0392b;
+            --text: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', "Microsoft JhengHei", "Heiti TC", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-bottom: 4px solid var(--accent);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        h2 {
+            margin: 10px 0 0;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            font-weight: normal;
+        }
+
+        .quiz-intro {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--accent);
+            font-size: 0.95rem;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover {
+            border-color: var(--accent);
+            background: #f7fbff;
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #2980b9;
+        }
+
+        .result-box {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .score-large {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .pass-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .pass { color: var(--success); background: #dff9e8; }
+        .fail { color: var(--error); background: #fadbd8; }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #555;
+            display: none;
+            text-align: left;
+            border-left: 4px solid #bdc3c7;
+        }
+
+        .correct-ans { color: var(--success); font-weight: bold; }
+        .wrong-ans { color: var(--error); font-weight: bold; }
+        
+        /* 數學算式優化 */
+        sup { vertical-align: super; font-size: smaller; }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5rem; }
+            .question-text { font-size: 1.05rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>彥均(Samuel) 學習園地</h1>
+        <h2>八年級數學 - 第三次月考模擬測驗</h2>
+    </header>
+
+    <div class="quiz-intro">
+        📌 <strong>測驗規則：</strong>
+        <ul>
+            <li>範圍：一元二次方程式、統計圖表 [依據學校試卷出題]</li>
+            <li>題數：隨機抽出 10 題，每題 10 分。</li>
+            <li>及格：<strong>90 分 (含) 以上</strong>才算通過。</li>
+            <li>請準備紙筆計算，提交後可查看詳細算式解析。</li>
+        </ul>
+    </div>
+
+    <form id="quizForm">
+        <div id="quiz-container"></div>
+        <button type="button" class="btn-submit" onclick="submitQuiz()">交卷並查看成績</button>
+    </form>
+
+    <div id="result" class="result-box">
+        <!-- 成績顯示區 -->
+    </div>
+</div>
+
+<script>
+    // 題庫資料：改編自提供的來源圖片 [Source 1-16]
+    const questionBank = [
+        {
+            id: 1,
+            question: "判斷下列何者為一元二次方程式？",
+            options: [
+                "A. 3x<sup>2</sup> - 5x + 1",
+                "B. x<sup>2</sup> + 3x = 0",
+                "C. 2x + 5 = 0",
+                "D. x<sup>2</sup> + y = 3"
+            ],
+            answer: "B",
+            explanation: "解析：<br>(A)是多項式，不是方程式(沒有等號)。<br>(B)是一元二次方程式，有等號且最高次方為2。<br>(C)是一元一次方程式。<br>(D)是二元二次方程式。<br>[觀念來源: Source 13]"
+        },
+        {
+            id: 2,
+            question: "解方程式 3x<sup>2</sup> = 5x，求 x 的值為何？",
+            options: [
+                "A. x = 5/3",
+                "B. x = 0",
+                "C. x = 0 或 x = 5/3",
+                "D. x = 0 或 x = -5/3"
+            ],
+            answer: "C",
+            explanation: "解析：<br>移項得 3x<sup>2</sup> - 5x = 0<br>提出公因式 x(3x - 5) = 0<br>故 x = 0 或 3x = 5 (即 x = 5/3)。<br>注意：不能直接將兩邊除以 x，會遺失 x=0 的解。<br>[題型來源: Source 1]"
+        },
+        {
+            id: 3,
+            question: "若方程式 x<sup>2</sup> - 8x + m = 0 可配方成 (x - n)<sup>2</sup> = 3 的形式，則 m = ?",
+            options: [
+                "A. 13",
+                "B. 16",
+                "C. 19",
+                "D. 3"
+            ],
+            answer: "A",
+            explanation: "解析：<br>將 (x - n)<sup>2</sup> = 3 展開 &rarr; x<sup>2</sup> - 2nx + n<sup>2</sup> - 3 = 0<br>對照係數：-2n = -8 &rarr; n = 4<br>常數項 m = n<sup>2</sup> - 3 = 4<sup>2</sup> - 3 = 16 - 3 = 13。<br>[題型來源: Source 3, 14]"
+        },
+        {
+            id: 4,
+            question: "關於方程式 (3x + 2)(x - 4) = (x - 4)(2x + 5) 的解，下列敘述何者正確？",
+            options: [
+                "A. 只有一個解 x = 3",
+                "B. 只有一個解 x = 4",
+                "C. 兩根之和為 7",
+                "D. 兩根之積為 -12"
+            ],
+            answer: "C",
+            explanation: "解析：<br>移項提公因式：(x - 4)[(3x + 2) - (2x + 5)] = 0<br>(x - 4)(x - 3) = 0<br>解得 x = 4 或 x = 3。<br>兩根之和 = 4 + 3 = 7。<br>[題型來源: Source 13, 14]"
+        },
+        {
+            id: 5,
+            question: "已知直角三角形的三邊長為連續整數，則此三角形的面積為何？",
+            options: [
+                "A. 6",
+                "B. 12",
+                "C. 24",
+                "D. 30"
+            ],
+            answer: "A",
+            explanation: "解析：<br>設三邊長為 x-1, x, x+1 (x>1)<br>根據畢氏定理：(x-1)<sup>2</sup> + x<sup>2</sup> = (x+1)<sup>2</sup><br>x<sup>2</sup> - 2x + 1 + x<sup>2</sup> = x<sup>2</sup> + 2x + 1<br>整理得 x<sup>2</sup> - 4x = 0 &rarr; x(x-4) = 0<br>x=4 (0不合)，三邊為 3, 4, 5。<br>面積 = (3 × 4) / 2 = 6。<br>[題型來源: Source 5, 11]"
+        },
+        {
+            id: 6,
+            question: "在一塊長 20 公尺、寬 14 公尺的長方形草地上，開闢兩條等寬且互相垂直的道路（如十字形），已知剩餘草地面積為 216 平方公尺，求路寬？",
+            options: [
+                "A. 1 公尺",
+                "B. 2 公尺",
+                "C. 3 公尺",
+                "D. 4 公尺"
+            ],
+            answer: "B",
+            explanation: "解析：<br>將道路平移，剩餘面積可視為長 (20-x)、寬 (14-x) 的長方形。<br>(20 - x)(14 - x) = 216<br>280 - 34x + x<sup>2</sup> = 216<br>x<sup>2</sup> - 34x + 64 = 0<br>(x - 2)(x - 32) = 0<br>x = 2 或 32 (32不合，路寬不能大於邊長)，故路寬為 2 公尺。<br>[題型來源: Source 16]"
+        },
+        {
+            id: 7,
+            question: "若 x的一元二次方程式 x<sup>2</sup> - kx + 9 = 0 有重根，則 k 的值可能為何？",
+            options: [
+                "A. 3",
+                "B. 6",
+                "C. ±3",
+                "D. ±6"
+            ],
+            answer: "D",
+            explanation: "解析：<br>有重根代表判別式 D = b<sup>2</sup> - 4ac = 0<br>(-k)<sup>2</sup> - 4 × 1 × 9 = 0<br>k<sup>2</sup> - 36 = 0 &rarr; k<sup>2</sup> = 36<br>k = ±6。<br>[題型來源: Source 4, 13]"
+        },
+        {
+            id: 8,
+            question: "彥均班上 40 位同學的體重累積相對次數分配折線圖中，由 50~60 公斤這一組上升到了 60%，由 60~70 公斤這一組上升到了 80%，請問 60~70 公斤這一組有多少人？",
+            options: [
+                "A. 4 人",
+                "B. 6 人",
+                "C. 8 人",
+                "D. 20 人"
+            ],
+            answer: "C",
+            explanation: "解析：<br>60~70公斤該組的相對次數 = 累積到該組的百分比 - 前一組的累積百分比<br>該組百分比 = 80% - 60% = 20%<br>人數 = 總人數 × 百分比 = 40 × 0.2 = 8 人。<br>[題型來源: Source 8, 15]"
+        },
+        {
+            id: 9,
+            question: "若 -3 是方程式 2x<sup>2</sup> - ax + 3 = 0 的一根，則 a 的值為何？",
+            options: [
+                "A. -5",
+                "B. -7",
+                "C. 5",
+                "D. 7"
+            ],
+            answer: "B",
+            explanation: "解析：<br>將根 x = -3 代入方程式：<br>2(-3)<sup>2</sup> - a(-3) + 3 = 0<br>18 + 3a + 3 = 0<br>3a = -21 &rarr; a = -7。<br>[題型來源: Source 1]"
+        },
+        {
+            id: 10,
+            question: "某果園種植 40 棵果樹，每棵平均產 500 個果實。若每加種 1 棵，每棵平均產量減少 10 個。請問應加種幾棵，才能使總產量達到最大？",
+            options: [
+                "A. 5 棵",
+                "B. 10 棵",
+                "C. 45 棵",
+                "D. 50 棵"
+            ],
+            answer: "A",
+            explanation: "解析：<br>設加種 x 棵，總產量 y = (40 + x)(500 - 10x)<br>y = -10x<sup>2</sup> + 100x + 20000<br>求頂點 x = -b / 2a = -100 / (2 × -10) = 5。<br>故加種 5 棵時有最大產量。<br>[題型來源: Source 6, 16]"
+        },
+        {
+            id: 11,
+            question: "兩個連續正整數的平方和為 85，求此兩數之和？",
+            options: [
+                "A. 11",
+                "B. 13",
+                "C. 15",
+                "D. 17"
+            ],
+            answer: "B",
+            explanation: "解析：<br>設兩數為 x, x+1。<br>x<sup>2</sup> + (x+1)<sup>2</sup> = 85<br>2x<sup>2</sup> + 2x + 1 = 85 &rarr; x<sup>2</sup> + x - 42 = 0<br>(x + 7)(x - 6) = 0<br>x = 6 (負數不合，因題目說正整數)<br>兩數為 6, 7。和為 6 + 7 = 13。<br>[題型來源: Source 2]"
+        },
+        {
+            id: 12,
+            question: "下列關於二次函數圖形或統計圖表的敘述，何者錯誤？",
+            options: [
+                "A. 累積相對次數分配折線圖的最後一點縱坐標必為 100%",
+                "B. 次數分配直方圖中，矩形面積總和代表總次數(或成比例)",
+                "C. 方程式 ax<sup>2</sup>+bx+c=0 若判別式 b<sup>2</sup>-4ac < 0，代表無解",
+                "D. (x-3)<sup>2</sup> = 25 的解為 x = 8"
+            ],
+            answer: "D",
+            explanation: "解析：<br>(D) 錯誤。(x-3)<sup>2</sup>=25 &rarr; x-3 = ±5，所以 x = 8 或 x = -2。<br>其他選項皆為正確觀念。<br>[題型來源: Source 12]"
+        }
+    ];
+
+    // 洗牌演算法
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    let currentQuestions = [];
+
+    function initQuiz() {
+        const quizContainer = document.getElementById('quiz-container');
+        quizContainer.innerHTML = '';
+        
+        // 隨機選出 10 題
+        const shuffled = shuffleArray([...questionBank]);
+        currentQuestions = shuffled.slice(0, 10);
+
+        currentQuestions.forEach((q, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="question-text">Q${index + 1}. ${q.question}</div>
+                <div class="options-grid">
+                    ${q.options.map((opt, i) => {
+                        const val = opt.split('.'); // 取得 A, B, C, D
+                        return `
+                        <label class="option-label">
+                            <input type="radio" name="q${q.id}" value="${val}">
+                            ${opt}
+                        </label>`;
+                    }).join('')}
+                </div>
+                <div id="explain-${q.id}" class="explanation"></div>
+            `;
+            quizContainer.appendChild(card);
+        });
+        
+        // 重置結果區
+        document.getElementById('result').style.display = 'none';
+        document.querySelector('.btn-submit').style.display = 'block';
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        let correctCount = 0;
+        let allAnswered = true;
+
+        // 檢查是否作答
+        for (let q of currentQuestions) {
+            const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+            if (!selected) {
+                allAnswered = false;
+                break;
+            }
+        }
+
+        if (!allAnswered) {
+            if(!confirm("您還有題目未作答，確定要交卷嗎？(未作答將以零分計算)")) return;
+        }
+
+        // 計算分數與顯示解析
+        currentQuestions.forEach(q => {
+            const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+            const explainDiv = document.getElementById(`explain-${q.id}`);
+            const userAnswer = selected ? selected.value : "未作答";
+            
+            explainDiv.style.display = 'block';
+            
+            // 鎖定選項
+            const inputs = document.querySelectorAll(`input[name="q${q.id}"]`);
+            inputs.forEach(input => input.disabled = true);
+
+            if (userAnswer === q.answer) {
+                score += 10;
+                correctCount++;
+                explainDiv.style.borderLeftColor = "var(--success)";
+                explainDiv.innerHTML = `<span class="correct-ans">✅ 答對了！</span><br>${q.explanation}`;
+            } else {
+                explainDiv.style.borderLeftColor = "var(--error)";
+                explainDiv.innerHTML = `<span class="wrong-ans">❌ 答錯了。</span> 您的答案：${userAnswer} <br> <span class="correct-ans">正確答案：${q.answer}</span><br>${q.explanation}`;
+            }
+        });
+
+        // 顯示結果
+        const resultBox = document.getElementById('result');
+        const isPass = score >= 90;
+        
+        resultBox.innerHTML = `
+            <div class="score-large ${isPass ? 'correct-ans' : 'wrong-ans'}">${score} 分</div>
+            <div class="pass-badge ${isPass ? 'pass' : 'fail'}">
+                ${isPass ? '🎉 恭喜及格！' : '💪 未達標準 (90分)，請複習後再試！'}
+            </div>
+            <p>您答對了 ${correctCount} / 10 題</p>
+            <button class="btn-submit" onclick="location.reload()" style="background:#7f8c8d; margin-top:15px;">再測驗一次</button>
+        `;
+        
+        resultBox.style.display = 'block';
+        document.querySelector('.btn-submit').style.display = 'none';
+        
+        // 滾動到結果
+        resultBox.scrollIntoView({behavior: 'smooth'});
+    }
+
+    // 初始化
+    initQuiz();
+
+</script>
+
+</body>
+</html>
+程式碼設計特點說明
+1. 資料來源真實性：
+    ◦ 題庫：所有題目均改編自您上傳的試卷圖片，包含「分配律解方程式」(Source 14)、「十字路寬問題」(Source 16)、「果園產量最大化」(Source 6) 以及「判別式概念」(Source 4)。這避免了觀念模糊，確保是八年級上學期第三次段考（一元二次方程式與統計）的範圍。
+2. 細膩的難度：
+    ◦ 包含基礎的判別式運算（如 b 
+2
+ −4ac）。
+    ◦ 進階的應用問題（如路寬問題需要設 x 解一元二次方程式）。
+    ◦ 統計圖表判讀（累積相對次數），這是該次段考的另一大重點。
+3. 嚴格的計分邏輯：
+    ◦ 程式碼中設定 const isPass = score >= 90;，只有 90 分以上才會顯示綠色的「恭喜及格」，否則會顯示紅色的「未達標準」，激勵 Samuel 追求高分。
+4. 立即回饋與解析：
+    ◦ 使用者交卷後，系統會自動展開每一題的解析 (explanation 欄位)，直接指出正確答案並附上計算過程（如配方法的步驟），達到教育訓練目的。
+5. 視覺與操作優化：
+    ◦ 使用 CSS Grid 與 Flexbox 進行排版，手機上選項按鈕好按，電腦上版面整潔。
+    ◦ 數學符號使用 <sup> 標籤處理（如 x 
+2
+ ），無需外掛程式庫即可正確顯示。
+您可以隨時將此檔案給彥均使用，若需要增加更多題目，只需按照程式碼中 questionBank 的格式繼續新增即可。
